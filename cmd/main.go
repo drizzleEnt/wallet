@@ -1,7 +1,9 @@
 package main
 
-import "github.com/drizzleent/wallet/ui"
+import "github.com/drizzleent/wallet/app"
 
 func main() {
-	ui.RunApp()
+	a := app.NewApp()
+
+	a.Run()
 }

@@ -7,7 +7,14 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func RunApp() {
+type UI struct {
+}
+
+func NewUI() *UI {
+	return &UI{}
+}
+
+func (a *UI) RunApp() {
 	myApp := app.New()
 	myWindow := myApp.NewWindow("I-WALLET")
 	myWindow.CenterOnScreen()
@@ -15,8 +22,8 @@ func RunApp() {
 
 	label := widget.NewLabel("Welcome to Crypto Wallet")
 	createBtn := widget.NewButton("Import Wallet", func() {
-		
-		label.SetText("wallet created")
+
+		label.SetText("wallet imported")
 	})
 
 	content := container.NewVBox(label, createBtn)
