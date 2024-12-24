@@ -63,11 +63,19 @@ func (a *UI) showImportPrivatekey(w fyne.Window) {
 
 	dialog.ShowCustomConfirm("Import Private Key", "Confirm", "Cancel", privatekeyEntry, func(b bool) {
 		if b {
-			privatekey := privatekeyEntry.Text
-			if privatekey == "" {
+			privatekeyStr := privatekeyEntry.Text
+			if privatekeyStr == "" {
 				dialog.ShowError(fmt.Errorf("Private key cannot be empty"), w)
 				return
 			}
+
+			address, privatekey, err := a.bc.ImportFromPrivatekey(privatekeyStr, "")
+			if err != nil {
+				dialog.ShowError(fmt.Errorf("Failed import private key"), w)
+				return
+			}
+			fmt.Printf("address: %v\n", address)
+
 			a.showSaveWithPassword(w, func(password string) {
 				err := a.srv.SaveWallet(privatekey, password)
 				if err != nil {
@@ -81,7 +89,34 @@ func (a *UI) showImportPrivatekey(w fyne.Window) {
 }
 
 func (a *UI) showImportSeedPhrase(w fyne.Window) {
+	seedEntry := widget.NewEntry()
+	seedEntry.SetPlaceHolder("Enter seed phrase")
 
+	dialog.ShowCustomConfirm("Import Seed Phrase", "Confirm", "Cancel", seedEntry, func(b bool) {
+		if b {
+			seedStr := seedEntry.Text
+			if seedStr == "" {
+				dialog.ShowError(fmt.Errorf("Seed Phrase cannot be empty"), w)
+				return
+			}
+
+			address, privatekey, err := a.bc.ImportFromSeedPhrase(seedStr, "")
+			if err != nil {
+				dialog.ShowError(fmt.Errorf("Failed import private key"), w)
+				return
+			}
+			fmt.Printf("address: %v\n", address)
+
+			a.showSaveWithPassword(w, func(password string) {
+				err := a.srv.SaveWallet(privatekey, password)
+				if err != nil {
+					dialog.ShowError(fmt.Errorf("Failed save wallet"), w)
+					return
+				}
+				dialog.ShowInformation("Success", "Wallet imported and saved successfully!", w)
+			})
+		}
+	}, w)
 }
 
 func (a *UI) showSaveWithPassword(w fyne.Window, onSave func(password string)) {
