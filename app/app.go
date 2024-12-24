@@ -24,7 +24,7 @@ func (a *App) Run() error {
 
 func (a *App) UI() *ui.UI {
 	if a.ui == nil {
-		a.ui = ui.NewUI()
+		a.ui = ui.NewUI(a.Blockchain(), a.Service())
 	}
 	return a.ui
 }
