@@ -83,3 +83,5 @@ jobs:
           asset_path: ${{ env.FILE_PATH }}
           asset_name: i-wallet-${{ matrix.os }}-${{ matrix.arch }}
           asset_content_type: application/octet-stream
+        env:
+            GITHUB_TOKEN: ${{ secrets.WF_TOKEN }}
