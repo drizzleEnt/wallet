@@ -54,6 +54,7 @@ jobs:
             echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
       
       - name: Create Release
+        id: create_release
         uses: actions/create-release@v1
         with:
             tag_name: ${{ env.TAG_NAME }}
