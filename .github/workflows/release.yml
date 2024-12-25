@@ -3,9 +3,9 @@ name: Build and Release i-wallet
 on:
   push:
     tags:
-      - 'v*' 
+      - 'v*'
     branches:
-      - main 
+      - main
 
 jobs:
   build-and-release:
@@ -13,86 +13,77 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Шаг 1: Клонирование репозитория
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Шаг 2: Установка Go
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
           go-version: 1.22.2
 
+      # Шаг 3: Установка fyne-cross
       - name: Install fyne-cross
         run: go install github.com/fyne-io/fyne-cross@latest
       
+      # Шаг 4: Установка MinGW для сборки Windows
       - name: Install mingw-w64
         run: sudo apt-get install -y mingw-w64
 
+      # Шаг 5: Сборка i-wallet для Linux и Windows
       - name: Build i-wallet for Linux
         run: |
-          export GOOS=linux
-          export GOARCH=amd64
           fyne-cross linux -arch amd64 -output i-wallet-linux -app-id com.example.iwallet -icon ./assets/Icon.png
-        env:
-          GOOS: linux
-          GOARCH: amd64
-      
+
       - name: Build i-wallet for Windows
         run: |
-            export GOOS=windows
-            export GOARCH=amd64
-            fyne-cross windows -arch amd64 -output i-wallet-windows -app-id com.example.iwallet -icon ./assets/Icon.png
-        env:
-          GOOS: windows
-          GOARCH: amd64  
-      
-      - name: Upload Linux Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: i-wallet-linux-amd64
-          path: ./fyne-cross/dist/linux-amd64/i-wallet-linux
-  
-      - name: Upload Windows Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: i-wallet-windows-amd64
-          path: ./fyne-cross/dist/windows-amd64/i-wallet-windows
+          fyne-cross windows -arch amd64 -output i-wallet-windows -app-id com.example.iwallet -icon ./assets/Icon.png
+
+      # Шаг 6: Архивация артефактов
+      - name: Archive Linux Artifact
+        run: tar -cJf i-wallet-linux-amd64.tar.xz -C fyne-cross/dist/linux-amd64 i-wallet-linux
+
+      - name: Archive Windows Artifact
+        run: zip -j i-wallet-windows-amd64.zip fyne-cross/dist/windows-amd64/i-wallet-windows
 
       - name: Generate a unique tag
         run: |
             TAG_NAME="v$(date +'%Y%m%d%H%M%S')"
             echo "Generated tag: $TAG_NAME"
             echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
-      
-      - name: Create Release
+
+      # Шаг 7: Создание релиза
+      - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
         with:
-            tag_name: ${{ env.TAG_NAME }}
-            release_name: Release ${{ env.TAG_NAME }}
-            body: |
-                Automated release for version ${{ env.TAG_NAME }}.
-            draft: false
-            prerelease: false
+          tag_name: ${{ env.TAG_NAME }}
+          release_name: Release ${{ env.TAG_NAME }}
+          body: |
+            Automated release for version ${{ github.ref_name }}.
+          draft: false
+          prerelease: false
         env:
-            GITHUB_TOKEN: ${{ secrets.WF_TOKEN }}
-      
+          GITHUB_TOKEN: ${{ secrets.WF_TOKEN }}
+
+      # Шаг 8: Загрузка артефактов в релиз
       - name: Upload Linux Release Asset
         uses: actions/upload-release-asset@v1
         with:
-            upload_url: ${{ steps.create_release.outputs.upload_url }}
-            asset_path: ./fyne-cross/dist/linux-amd64
-            asset_name: i-wallet-linux-amd64.tar.xz
-            asset_content_type: application/octet-stream
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./i-wallet-linux-amd64.tar.xz
+          asset_name: i-wallet-linux-amd64.tar.xz
+          asset_content_type: application/x-xz
         env:
-            GITHUB_TOKEN: ${{ secrets.WF_TOKEN }}
-      
+          GITHUB_TOKEN: ${{ secrets.WF_TOKEN }}
+
       - name: Upload Windows Release Asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./fyne-cross/dist/windows-amd64
+          asset_path: ./i-wallet-windows-amd64.zip
           asset_name: i-wallet-windows-amd64.zip
-          asset_content_type: application/octet-stream
+          asset_content_type: application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.WF_TOKEN }}
-    
