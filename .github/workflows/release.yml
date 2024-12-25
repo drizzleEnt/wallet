@@ -40,9 +40,6 @@ jobs:
         env:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
-    
-      - name: Check build output
-        run: ls -alh ./fyne-cross/dist/linux-amd64/
       
       - name: Find the output file
         run: |
