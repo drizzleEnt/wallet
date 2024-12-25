@@ -45,13 +45,6 @@ jobs:
   
       - name: Check Windows Build
         run: ls fyne-cross/dist/windows-amd64/
-      
-        # Шаг 6: Архивация артефактов
-      - name: Archive Linux Artifact
-        run: tar -cJf i-wallet-linux-amd64.tar.xz -C fyne-cross/dist/linux-amd64 i-wallet-linux
-
-      - name: Archive Windows Artifact
-        run: zip -j i-wallet-windows-amd64.zip fyne-cross/dist/windows-amd64/i-wallet-windows
 
       - name: Generate a unique tag
         run: |
@@ -78,7 +71,7 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./i-wallet-linux-amd64.tar.xz
+          asset_path: ./fyne-cross/dist/linux-amd64/i-wallet-linux-amd64.tar.xz
           asset_name: i-wallet-linux-amd64.tar.xz
           asset_content_type: application/x-xz
         env:
@@ -88,7 +81,7 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./i-wallet-windows-amd64.zip
+          asset_path: ./fyne-cross/dist/windows-amd64/i-wallet-windows-amd64.zip
           asset_name: i-wallet-windows-amd64.zip
           asset_content_type: application/zip
         env:
