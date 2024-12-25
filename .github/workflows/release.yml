@@ -84,13 +84,24 @@ jobs:
             prerelease: false
         env:
             GITHUB_TOKEN: ${{ secrets.WF_TOKEN }}
-
-      - name: Upload Release Assets
+      
+      - name: Upload Linux Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+            upload_url: ${{ steps.create_release.outputs.upload_url }}
+            asset_path: ./fyne-cross/dist/linux-amd64/i-wallet-linux
+            asset_name: i-wallet-linux-amd64.tar.xz
+            asset_content_type: application/octet-stream
+        env:
+            GITHUB_TOKEN: ${{ secrets.WF_TOKEN }}
+      
+      - name: Upload Windows Release Asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.FILE_PATH }}
-          asset_name: i-wallet-${{ matrix.os }}-${{ matrix.arch }}
+          asset_path: ./fyne-cross/dist/windows-amd64/i-wallet-windows
+          asset_name: i-wallet-windows-amd64.zip
           asset_content_type: application/octet-stream
         env:
-            GITHUB_TOKEN: ${{ secrets.WF_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.WF_TOKEN }}
+    
