@@ -46,7 +46,7 @@ jobs:
           path: ./fyne-cross/dist/${{ matrix.os }}-${{ matrix.arch }}/i-wallet
 
       - name: Debug GitHub Context
-        run: echo "Ref: ${{ github.ref }} | Ref name: ${{ github.ref_name }}"
+        run: "Ref: ${{ github.ref }}
 
       - name: Create GitHub Release
         id: create_release
