@@ -27,11 +27,11 @@ jobs:
           go-version: 1.22.2
 
       - name: Install fyne-cross
-        run: go install github.com/fyne-io/fyne@latest
+        run: go install github.com/fyne-io/fyne-cross@latest
 
       - name: Build i-wallet for ${{ matrix.os }}-${{ matrix.arch }}
         run: |
-          fyne package -os ${{ matrix.os }} -appID my.domain.i-wallet -icon ./assets/Icon.png  
+          fyne-cross ${{ matrix.os }} -arch ${{ matrix.arch }} -output i-wallet -app-id com.example.iwallet -icon ./assets/Icon.png
         env:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
