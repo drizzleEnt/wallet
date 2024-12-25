@@ -1,14 +1,14 @@
-name : Build and Release I-Wallet
+name: Build and Release i-wallet
 
 on:
-    push:
-      tags:
-        - 'v*'
-      branches:
-        - main
+  push:
+    tags:
+      - 'v*' 
+    branches:
+      - main 
 
 jobs:
-  build:
+  build-and-release:
     name: Build and Release
     runs-on: ubuntu-latest
 
@@ -35,30 +35,19 @@ jobs:
       # Шаг 4: Сборка приложения
       - name: Build i-wallet for ${{ matrix.os }}-${{ matrix.arch }}
         run: |
-          fyne-cross ${{ matrix.os }} -arch ${{ matrix.arch }} -output i-wallet -app-id com.example.iwallet
+          fyne-cross ${{ matrix.os }} -arch ${{ matrix.arch }} -output i-wallet -appID com.example.iwallet
         env:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
 
-      # Шаг 5: Загрузка артефактов
-      - name: Upload to Release
-        uses: actions/upload-release-asset@v1
+      # Шаг 5: Сохранение артефактов
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./fyne-cross/dist/${{ matrix.os }}-${{ matrix.arch }}/i-wallet
-          asset_name: i-wallet-${{ matrix.os }}-${{ matrix.arch }}
-          asset_content_type: application/octet-stream
-  release:
-    name: Create Release and Upload Assets
-    needs: build
-    runs-on: ubuntu-latest
+          name: i-wallet-${{ matrix.os }}-${{ matrix.arch }}
+          path: ./fyne-cross/dist/${{ matrix.os }}-${{ matrix.arch }}/i-wallet
 
-    steps:
-      # Шаг 1: Клонирование репозитория
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      # Шаг 2: Создание релиза
+      # Шаг 6: Создание релиза
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
@@ -66,17 +55,17 @@ jobs:
           tag_name: ${{ github.ref_name }}
           release_name: Release ${{ github.ref_name }}
           body: |
-            This is the automated release for version ${{ github.ref_name }}.
+            Automated release for version ${{ github.ref_name }}.
           draft: false
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Шаг 3: Загрузка артефактов в релиз
+      # Шаг 7: Загрузка артефактов в релиз
       - name: Upload Release Assets
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./fyne-cross/dist
+          asset_path: ./fyne-cross/dist/${{ matrix.os }}-${{ matrix.arch }}/i-wallet
           asset_name: i-wallet-${{ matrix.os }}-${{ matrix.arch }}
           asset_content_type: application/octet-stream
