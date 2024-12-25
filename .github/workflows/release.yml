@@ -35,7 +35,7 @@ jobs:
       # Шаг 4: Сборка приложения
       - name: Build i-wallet for ${{ matrix.os }}-${{ matrix.arch }}
         run: |
-          fyne-cross ${{ matrix.os }} -arch ${{ matrix.arch }} -output i-wallet
+          fyne-cross ${{ matrix.os }} -arch ${{ matrix.arch }} -output i-wallet -appID com.example.iwallet
         env:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
