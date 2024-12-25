@@ -47,17 +47,21 @@ jobs:
           name: i-wallet-${{ matrix.os }}-${{ matrix.arch }}
           path: ./fyne-cross/dist/${{ matrix.os }}-${{ matrix.arch }}/i-wallet
 
-      - name: Update GitHub Release if it exists
+      - name: Generate a unique tag
         run: |
-            TAG_NAME=${{ github.ref_name }}
-            RELEASE_ID=$(gh release view $TAG_NAME --json id -q ".id")
-            if [ "$RELEASE_ID" ]; then
-            echo "Release already exists. Updating release..."
-            gh release edit $TAG_NAME --draft false --prerelease false --notes "Updated release for version $TAG_NAME"
-            else
-            echo "Creating new release..."
-            gh release create $TAG_NAME --title "Release $TAG_NAME" --notes "Automated release for version $TAG_NAME"
-            fi
+            TAG_NAME="v$(date +'%Y%m%d%H%M%S')"
+            echo "Generated tag: $TAG_NAME"
+            echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
+      
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        with:
+            tag_name: ${{ env.TAG_NAME }}
+            release_name: Release ${{ env.TAG_NAME }}
+            body: |
+                Automated release for version ${{ env.TAG_NAME }}.
+            draft: false
+            prerelease: false
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
