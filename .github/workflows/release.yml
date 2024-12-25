@@ -61,7 +61,7 @@ jobs:
       
       - name: Debug GITHUB_TOKEN
         run: | 
-            echo "GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}"
+            echo "GITHUB_TOKEN: ${{ secrets.WF_TOKEN }}"
       
       - name: Create Release
         id: create_release
