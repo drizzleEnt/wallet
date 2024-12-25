@@ -71,7 +71,7 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./fyne-cross/dist/linux-amd64/
+          asset_path: ./fyne-cross/dist/linux-amd64/i-wallet-linux-amd64
           asset_name: i-wallet-linux-amd64.tar.xz
           asset_content_type: application/x-xz
         env:
@@ -81,7 +81,7 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./fyne-cross/dist/windows-amd64/
+          asset_path: ./fyne-cross/dist/windows-amd64/i-wallet-windows-amd64
           asset_name: i-wallet-windows-amd64.zip
           asset_content_type: application/zip
         env:
