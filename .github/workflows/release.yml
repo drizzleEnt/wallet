@@ -41,9 +41,9 @@ jobs:
             export GOOS=windows
             export GOARCH=amd64
             fyne-cross windows -arch amd64 -output i-wallet-windows -app-id com.example.iwallet -icon ./assets/Icon.png
-          env:
-            GOOS: windows
-            GOARCH: amd64  
+        env:
+          GOOS: windows
+          GOARCH: amd64  
       
       - name: Find the output file
         run: |
