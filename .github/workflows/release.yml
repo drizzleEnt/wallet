@@ -39,8 +39,14 @@ jobs:
       - name: Build i-wallet for Windows
         run: |
           fyne-cross windows -arch amd64 -output i-wallet-windows -app-id com.example.iwallet -icon ./assets/Icon.png
-
-      # Шаг 6: Архивация артефактов
+      
+      - name: Check Linux Build
+        run: ls fyne-cross/dist/linux-amd64/
+  
+      - name: Check Windows Build
+        run: ls fyne-cross/dist/windows-amd64/
+      
+        # Шаг 6: Архивация артефактов
       - name: Archive Linux Artifact
         run: tar -cJf i-wallet-linux-amd64.tar.xz -C fyne-cross/dist/linux-amd64 i-wallet-linux
 
