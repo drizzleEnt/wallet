@@ -47,18 +47,19 @@ jobs:
           name: i-wallet-${{ matrix.os }}-${{ matrix.arch }}
           path: ./fyne-cross/dist/${{ matrix.os }}-${{ matrix.arch }}/i-wallet
 
-      - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
-        with:
-          tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
-          body: |
-            Automated release for version ${{ github.ref_name }}.
-          draft: false
-          prerelease: false
+      - name: Update GitHub Release if it exists
+        run: |
+            TAG_NAME=${{ github.ref_name }}
+            RELEASE_ID=$(gh release view $TAG_NAME --json id -q ".id")
+            if [ "$RELEASE_ID" ]; then
+            echo "Release already exists. Updating release..."
+            gh release edit $TAG_NAME --draft false --prerelease false --notes "Updated release for version $TAG_NAME"
+            else
+            echo "Creating new release..."
+            gh release create $TAG_NAME --title "Release $TAG_NAME" --notes "Automated release for version $TAG_NAME"
+            fi
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Release Assets
         uses: actions/upload-release-asset@v1
