@@ -44,6 +44,12 @@ jobs:
       - name: Check build output
         run: ls -alh ./fyne-cross/dist/linux-amd64/
       
+      - name: Find the output file
+        run: |
+          FILE=$(find ./fyne-cross/dist/${{ matrix.os }}-${{ matrix.arch }}/ -name 'i-wallet.*' -print -quit)
+          echo "Found file: $FILE"
+          echo "FILE_PATH=$FILE" >> $GITHUB_ENV
+      
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -73,6 +79,6 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./fyne-cross/dist/${{ matrix.os }}-${{ matrix.arch }}/i-wallet
+          asset_path: ${{ env.FILE_PATH }}
           asset_name: i-wallet-${{ matrix.os }}-${{ matrix.arch }}
           asset_content_type: application/octet-stream
