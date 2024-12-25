@@ -18,21 +18,17 @@ jobs:
         arch: [amd64]
 
     steps:
-      # Шаг 1: Клонирование репозитория
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Шаг 2: Установка Go
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
           go-version: 1.22
 
-      # Шаг 3: Установка fyne-cross
       - name: Install fyne-cross
         run: go install github.com/fyne-io/fyne-cross@latest
 
-      # Шаг 4: Сборка приложения
       - name: Build i-wallet for ${{ matrix.os }}-${{ matrix.arch }}
         run: |
           fyne-cross ${{ matrix.os }} -arch ${{ matrix.arch }} -output i-wallet -app-id com.example.iwallet
@@ -40,14 +36,18 @@ jobs:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
 
-      # Шаг 5: Сохранение артефактов
+      - name: List files after build
+        run: ls -alh ./fyne-cross/dist/${{ matrix.os }}-${{ matrix.arch }}
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: i-wallet-${{ matrix.os }}-${{ matrix.arch }}
           path: ./fyne-cross/dist/${{ matrix.os }}-${{ matrix.arch }}/i-wallet
 
-      # Шаг 6: Создание релиза
+      - name: Debug GitHub Context
+        run: echo "Ref: ${{ github.ref }} | Ref name: ${{ github.ref_name }}"
+
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
@@ -61,7 +61,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Шаг 7: Загрузка артефактов в релиз
       - name: Upload Release Assets
         uses: actions/upload-release-asset@v1
         with:
