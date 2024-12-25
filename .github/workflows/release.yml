@@ -12,11 +12,6 @@ jobs:
     name: Build and Release
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        os: [windows, linux]
-        arch: [amd64]
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -32,36 +27,50 @@ jobs:
       - name: Install mingw-w64
         run: sudo apt-get install -y mingw-w64
 
-      - name: Build i-wallet for ${{ matrix.os }}-${{ matrix.arch }}
+      - name: Build i-wallet for Linux
         run: |
-          export GOOS=${{ matrix.os }}
-          export GOARCH=${{ matrix.arch }}
-          fyne-cross ${{ matrix.os }} -arch ${{ matrix.arch }} -output i-wallet -app-id com.example.iwallet -icon ./assets/Icon.png
+          export GOOS=linux
+          export GOARCH=amd64
+          fyne-cross linux -arch amd64 -output i-wallet-linux -app-id com.example.iwallet -icon ./assets/Icon.png
         env:
-          GOOS: ${{ matrix.os }}
-          GOARCH: ${{ matrix.arch }}
+          GOOS: linux
+          GOARCH: amd64
+      
+      - name: Build i-wallet for Windows
+        run: |
+            export GOOS=windows
+            export GOARCH=amd64
+            fyne-cross windows -arch amd64 -output i-wallet-windows -app-id com.example.iwallet -icon ./assets/Icon.png
+          env:
+            GOOS: windows
+            GOARCH: amd64  
       
       - name: Find the output file
         run: |
-          FILE=$(find ./fyne-cross/dist/${{ matrix.os }}-${{ matrix.arch }}/ -name 'i-wallet.*' -print -quit)
-          echo "Found file: $FILE"
-          echo "FILE_PATH=$FILE" >> $GITHUB_ENV
+          LFILE=$(find ./fyne-cross/dist/linux-amd64/ -name 'i-wallet.tar.xz' -print -quit)
+          echo "Found file: $LFILE"
+          echo "LFILE_PATH=$LFILE" >> $GITHUB_ENV
+          WFILE=$(find ./fyne-cross/dist/windows-amd64/ -name 'i-wallet.zip' -print -quit)
+          echo "Found file: $WFILE"
+          echo "WFILE_PATH=$WFILE" >> $GITHUB_ENV
       
-      - name: Upload Artifacts
+      - name: Upload Linux Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: i-wallet-${{ matrix.os }}-${{ matrix.arch }}
-          path: ./fyne-cross/dist/${{ matrix.os }}-${{ matrix.arch }}/i-wallet
+          name: i-wallet-linux-amd64
+          path: ./fyne-cross/dist/linux-amd64/i-wallet-linux
+  
+      - name: Upload Windows Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: i-wallet-windows-amd64
+          path: ./fyne-cross/dist/windows-amd64/i-wallet-windows
 
       - name: Generate a unique tag
         run: |
             TAG_NAME="v$(date +'%Y%m%d%H%M%S')"
             echo "Generated tag: $TAG_NAME"
             echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
-      
-      - name: Debug GITHUB_TOKEN
-        run: | 
-            echo "GITHUB_TOKEN: ${{ secrets.WF_TOKEN }}"
       
       - name: Create Release
         id: create_release
