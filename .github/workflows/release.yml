@@ -59,6 +59,10 @@ jobs:
             echo "Generated tag: $TAG_NAME"
             echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
       
+      - name: Debug GITHUB_TOKEN
+        run: | 
+            echo "GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}"
+      
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
