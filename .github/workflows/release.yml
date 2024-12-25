@@ -40,11 +40,15 @@ jobs:
         run: |
           fyne-cross windows -arch amd64 -output i-wallet-windows -app-id com.example.iwallet -icon ./assets/Icon.png
       
-      - name: Check Linux Build
-        run: ls fyne-cross/dist/linux-amd64/
+      - name: Verify Linux Build Output
+        run: |
+          echo "Contents of linux-amd64:"
+          ls -l fyne-cross/dist/linux-amd64/
   
-      - name: Check Windows Build
-        run: ls fyne-cross/dist/windows-amd64/
+      - name: Verify Windows Build Output
+        run: |
+          echo "Contents of windows-amd64:"
+          ls -l fyne-cross/dist/windows-amd64/
 
       - name: Generate a unique tag
         run: |
@@ -66,12 +70,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.WF_TOKEN }}
 
+      - name: Archive Linux Artifact
+        run: tar -cJf i-wallet-linux-amd64.tar.xz -C fyne-cross/dist/linux-amd64 i-wallet-linux
+  
+      - name: Archive Windows Artifact
+        run: zip -j i-wallet-windows-amd64.zip fyne-cross/dist/windows-amd64/i-wallet-windows
+  
+        
+
       # Шаг 8: Загрузка артефактов в релиз
       - name: Upload Linux Release Asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./fyne-cross/dist/linux-amd64/i-wallet-linux
+          asset_path: ./i-wallet-linux-amd64.tar.xz
           asset_name: i-wallet-linux-amd64.tar.xz
           asset_content_type: application/x-xz
         env:
@@ -81,7 +93,7 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./fyne-cross/dist/windows-amd64/i-wallet-windows
+          asset_path: ./i-wallet-windows-amd64.zip
           asset_name: i-wallet-windows-amd64.zip
           asset_content_type: application/zip
         env:
