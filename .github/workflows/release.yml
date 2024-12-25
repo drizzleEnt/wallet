@@ -45,15 +45,6 @@ jobs:
           GOOS: windows
           GOARCH: amd64  
       
-      - name: Find the output file
-        run: |
-          LFILE=$(find ./fyne-cross/dist/linux-amd64/ -name 'i-wallet.tar.xz' -print -quit)
-          echo "Found file: $LFILE"
-          echo "LFILE_PATH=$LFILE" >> $GITHUB_ENV
-          WFILE=$(find ./fyne-cross/dist/windows-amd64/ -name 'i-wallet.zip' -print -quit)
-          echo "Found file: $WFILE"
-          echo "WFILE_PATH=$WFILE" >> $GITHUB_ENV
-      
       - name: Upload Linux Artifact
         uses: actions/upload-artifact@v3
         with:
@@ -89,7 +80,7 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
             upload_url: ${{ steps.create_release.outputs.upload_url }}
-            asset_path: ./fyne-cross/dist/linux-amd64/i-wallet-linux
+            asset_path: ./fyne-cross/dist/linux-amd64/
             asset_name: i-wallet-linux-amd64.tar.xz
             asset_content_type: application/octet-stream
         env:
@@ -99,7 +90,7 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./fyne-cross/dist/windows-amd64/i-wallet-windows
+          asset_path: ./fyne-cross/dist/windows-amd64/
           asset_name: i-wallet-windows-amd64.zip
           asset_content_type: application/octet-stream
         env:
