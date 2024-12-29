@@ -30,14 +30,32 @@ func (a *UI) RunApp() {
 	myWindow.CenterOnScreen()
 	myWindow.Resize(fyne.NewSize(800, 500))
 
-	label := widget.NewLabel("Welcome to Crypto Wallet")
-	createBtn := widget.NewButton("Import Wallet", func() {
-		a.ImportWallet(myWindow)
-	})
+	hasWallets, err := a.srv.HasWallets()
+	if err != nil {
+		dialog.ShowError(err, myWindow)
+		return
+	}
 
-	content := container.NewVBox(label, createBtn)
-	myWindow.SetContent(content)
+	if hasWallets {
+		a.showMainMenu(myWindow)
+		//a.showWalletList(myWindow)
+	} else {
+		a.showStartWall(myWindow)
+	}
+
 	myWindow.ShowAndRun()
+}
+
+func (a *UI) showStartWall(w fyne.Window) {
+	label := widget.NewLabel("Welcome to Crypto Wallet")
+	importBtn := widget.NewButton("Import Wallet", func() {
+		a.ImportWallet(w)
+	})
+	createBtn := widget.NewButton("Create Wallet", func() {
+		//a.ImportWallet(w)
+	})
+	content := container.NewVBox(label, importBtn, createBtn)
+	w.SetContent(content)
 }
 
 func (a *UI) ImportWallet(w fyne.Window) {
@@ -83,6 +101,7 @@ func (a *UI) showImportPrivatekey(w fyne.Window) {
 					return
 				}
 				dialog.ShowInformation("Success", "Wallet imported and saved successfully!", w)
+				a.showMainMenu(w)
 			})
 		}
 	}, w)
@@ -114,6 +133,7 @@ func (a *UI) showImportSeedPhrase(w fyne.Window) {
 					return
 				}
 				dialog.ShowInformation("Success", "Wallet imported and saved successfully!", w)
+				a.showMainMenu(w)
 			})
 		}
 	}, w)
@@ -133,4 +153,86 @@ func (a *UI) showSaveWithPassword(w fyne.Window, onSave func(password string)) {
 			onSave(password)
 		}
 	}, w)
+}
+
+func (a *UI) showWalletList(w fyne.Window) {
+	wallets, err := a.srv.LoadWalletsFromKeystore()
+	if err != nil {
+		dialog.ShowError(err, w)
+		return
+	}
+
+	list := widget.NewList(
+		func() int { return len(wallets) },
+		func() fyne.CanvasObject { return widget.NewLabel("") },
+		func(lii widget.ListItemID, co fyne.CanvasObject) {
+			co.(*widget.Label).SetText(wallets[lii].Address)
+		},
+	)
+	btns := container.NewCenter(container.NewHBox(
+		widget.NewButton("Refresh", func() {
+			a.showWalletList(w)
+		}),
+		widget.NewButton("Back", func() {
+
+		})))
+
+	content := container.NewBorder(
+		nil,
+		btns,
+		nil,
+		nil,
+		list,
+	)
+
+	w.SetContent(content)
+}
+
+func (a *UI) showMainMenu(w fyne.Window) {
+	wallets, err := a.srv.LoadWalletsFromKeystore()
+	if err != nil {
+		dialog.ShowError(err, w)
+		return
+	}
+
+	totalBalance := "$1"
+
+	tokenList := []string{
+		"ARB: 50",
+		"ETH: 1",
+	}
+
+	addressLabel := widget.NewLabelWithStyle(
+		"Wallet: "+wallets[0].Address,
+		fyne.TextAlignCenter,
+		fyne.TextStyle{},
+	)
+
+	balanceLabel := widget.NewLabelWithStyle(
+		totalBalance,
+		fyne.TextAlignCenter,
+		fyne.TextStyle{Bold: true},
+	)
+
+	tokenListWidget := widget.NewList(
+		func() int { return len(tokenList) },
+		func() fyne.CanvasObject { return widget.NewLabel("") },
+		func(lii widget.ListItemID, co fyne.CanvasObject) {
+			co.(*widget.Label).SetText(tokenList[lii])
+		},
+	)
+
+	topSection := container.NewVBox(
+		addressLabel,
+		balanceLabel,
+	)
+
+	content := container.NewBorder(
+		topSection,
+		nil,
+		nil,
+		nil,
+		tokenListWidget,
+	)
+	w.SetContent(content)
 }

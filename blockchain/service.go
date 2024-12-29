@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/tyler-smith/go-bip32"
@@ -80,6 +81,10 @@ func (b *blockchain) ImportFromSeedPhrase(mnemonic string, password string) (str
 func (b *blockchain) ImportFromPrivatekey(privatekeyHex string, password string) (string, *ecdsa.PrivateKey, error) {
 	if privatekeyHex == "" {
 		return "", nil, fmt.Errorf("Private key not set")
+	}
+
+	if strings.HasPrefix(privatekeyHex, "0x") {
+		privatekeyHex = privatekeyHex[2:]
 	}
 
 	privateKeyBytes, err := hex.DecodeString(privatekeyHex)
