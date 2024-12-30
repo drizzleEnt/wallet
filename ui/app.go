@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/drizzleent/wallet/blockchain"
 	"github.com/drizzleent/wallet/service"
@@ -47,7 +48,12 @@ func (a *UI) RunApp() {
 }
 
 func (a *UI) showStartWall(w fyne.Window) {
-	label := widget.NewLabel("Welcome to Crypto Wallet")
+	label := widget.NewLabelWithStyle(
+		"Welcome to Crypto Wallet",
+		fyne.TextAlignCenter,
+		fyne.TextStyle{},
+	)
+	//label := widget.NewLabel("Welcome to Crypto Wallet")
 	importBtn := widget.NewButton("Import Wallet", func() {
 		a.importWallet(w)
 	})
@@ -67,7 +73,11 @@ func (a *UI) importWallet(w fyne.Window) {
 	})
 
 	content := container.NewVBox(
-		widget.NewLabel("Wallet import"),
+		widget.NewLabelWithStyle(
+			"Wallet import",
+			fyne.TextAlignCenter,
+			fyne.TextStyle{},
+		),
 		importPrivatekeyBtn,
 		importSeedPhraseBtn,
 	)
@@ -212,6 +222,40 @@ func (a *UI) showWalletList(w fyne.Window) {
 	w.SetContent(content)
 }
 
+func (a *UI) showSettingsMenu(w fyne.Window) {
+	label := widget.NewLabelWithStyle(
+		"Settings",
+		fyne.TextAlignCenter,
+		fyne.TextStyle{},
+	)
+	backBtn := widget.NewButtonWithIcon("Back", theme.CancelIcon(), func() {
+		a.showMainMenu(w)
+	})
+	importBtn := widget.NewButton("Import Wallet", func() {
+		a.importWallet(w)
+	})
+	createBtn := widget.NewButton("Create Wallet", func() {
+		a.createWallet(w)
+	})
+	walletListBtn := widget.NewButton("Switch Wallet", func() {
+		a.showWalletList(w)
+	})
+
+	center := container.NewVBox(
+		importBtn,
+		createBtn,
+		walletListBtn,
+	)
+	content := container.NewBorder(
+		label,
+		backBtn,
+		nil,
+		nil,
+		center,
+	)
+	w.SetContent(content)
+}
+
 func (a *UI) showMainMenu(w fyne.Window) {
 	wallets, err := a.srv.LoadWalletsFromKeystore()
 	if err != nil {
@@ -225,6 +269,12 @@ func (a *UI) showMainMenu(w fyne.Window) {
 		"ARB: 50",
 		"ETH: 1",
 	}
+
+	toolbar := widget.NewToolbar(
+		widget.NewToolbarAction(theme.SettingsIcon(), func() {
+			a.showSettingsMenu(w)
+		}),
+	)
 
 	addressLabel := widget.NewLabelWithStyle(
 		"Wallet: "+wallets[0].Address,
@@ -246,14 +296,19 @@ func (a *UI) showMainMenu(w fyne.Window) {
 		},
 	)
 
+	bottomSection := container.NewVBox(
+		toolbar,
+	)
+
 	topSection := container.NewVBox(
+		//toolbar,
 		addressLabel,
 		balanceLabel,
 	)
 
 	content := container.NewBorder(
 		topSection,
-		nil,
+		bottomSection,
 		nil,
 		nil,
 		tokenListWidget,
