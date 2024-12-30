@@ -256,6 +256,19 @@ func (a *UI) showSettingsMenu(w fyne.Window) {
 	w.SetContent(content)
 }
 
+func (a *UI) showBrowser(w fyne.Window) {
+	// debug := true
+
+	// win := webview.New(debug)
+	// defer win.Destroy()
+
+	// win.SetTitle("Browser")
+
+	// win.Navigate("google.com")
+	// win.Run()
+
+}
+
 func (a *UI) showMainMenu(w fyne.Window) {
 	wallets, err := a.srv.LoadWalletsFromKeystore()
 	if err != nil {
@@ -263,8 +276,11 @@ func (a *UI) showMainMenu(w fyne.Window) {
 		return
 	}
 
-	totalBalance := "$1"
-
+	totalBalance, err := a.bc.GetEtherBalance(wallets[0].Address)
+	if err != nil {
+		dialog.ShowError(fmt.Errorf("Failed get balance"), w)
+		totalBalance = "0"
+	}
 	tokenList := []string{
 		"ARB: 50",
 		"ETH: 1",
@@ -273,6 +289,9 @@ func (a *UI) showMainMenu(w fyne.Window) {
 	toolbar := widget.NewToolbar(
 		widget.NewToolbarAction(theme.SettingsIcon(), func() {
 			a.showSettingsMenu(w)
+		}),
+		widget.NewToolbarAction(theme.ColorChromaticIcon(), func() {
+			a.showBrowser(w)
 		}),
 	)
 
