@@ -49,16 +49,16 @@ func (a *UI) RunApp() {
 func (a *UI) showStartWall(w fyne.Window) {
 	label := widget.NewLabel("Welcome to Crypto Wallet")
 	importBtn := widget.NewButton("Import Wallet", func() {
-		a.ImportWallet(w)
+		a.importWallet(w)
 	})
 	createBtn := widget.NewButton("Create Wallet", func() {
-		//a.ImportWallet(w)
+		a.createWallet(w)
 	})
 	content := container.NewVBox(label, importBtn, createBtn)
 	w.SetContent(content)
 }
 
-func (a *UI) ImportWallet(w fyne.Window) {
+func (a *UI) importWallet(w fyne.Window) {
 	importPrivatekeyBtn := widget.NewButton("Import Private key", func() {
 		a.showImportPrivatekey(w)
 	})
@@ -73,6 +73,30 @@ func (a *UI) ImportWallet(w fyne.Window) {
 	)
 
 	w.SetContent(content)
+}
+
+func (a *UI) createWallet(w fyne.Window) {
+
+	dialog.ShowConfirm("Create New Wallet", "Create new wallet?", func(b bool) {
+		if b {
+			address, privateKey, err := a.bc.CreateWallet()
+			if err != nil {
+				dialog.ShowError(err, w)
+				return
+			}
+			fmt.Printf("address: %v\n", address)
+			fmt.Printf("privateKey: %v\n", privateKey)
+			a.showSaveWithPassword(w, func(password string) {
+				err := a.srv.SaveWallet(privateKey, password)
+				if err != nil {
+					dialog.ShowError(err, w)
+					return
+				}
+				dialog.ShowInformation("Success", "Wallet created and saved successfully!", w)
+				a.showMainMenu(w)
+			})
+		}
+	}, w)
 }
 
 func (a *UI) showImportPrivatekey(w fyne.Window) {

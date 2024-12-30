@@ -15,6 +15,7 @@ import (
 type Blockchain interface {
 	ImportFromPrivatekey(privatekeyHex string, password string) (string, *ecdsa.PrivateKey, error)
 	ImportFromSeedPhrase(mnemonic string, password string) (string, *ecdsa.PrivateKey, error)
+	CreateWallet() (string, *ecdsa.PrivateKey, error)
 }
 
 type blockchain struct {
@@ -103,4 +104,20 @@ func (b *blockchain) ImportFromPrivatekey(privatekeyHex string, password string)
 	log.Printf("wallet imported %s", address)
 
 	return address, privateKey, nil
+}
+
+func (b *blockchain) CreateWallet() (string, *ecdsa.PrivateKey, error) {
+	privateKey, err := crypto.GenerateKey()
+	if err != nil {
+		log.Printf("Error: %s", err.Error())
+		return "", nil, err
+	}
+
+	address := crypto.PubkeyToAddress(privateKey.PublicKey).Hex()
+
+	return address, privateKey, nil
+}
+
+func (b *blockchain) GetTotalBalance() (string, error) {
+	return "", nil
 }
