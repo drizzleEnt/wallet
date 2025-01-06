@@ -1,4 +1,4 @@
-# Crypto Wallet - Desktop Application
+# Crypto Wallet - Desktop Application I-Wallet
 
 **Crypto Wallet** is a lightweight, user-friendly desktop application built using Go, designed to securely store, send, and receive cryptocurrencies. It allows users to manage their digital assets efficiently and safely.
 
