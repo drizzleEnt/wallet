@@ -276,7 +276,7 @@ func (a *UI) showMainMenu(w fyne.Window) {
 		return
 	}
 
-	totalBalance, err := a.bc.GetEtherBalance(wallets[0].Address)
+	totalBalance, err := a.bc.GetBalance(wallets[0].Address)
 	if err != nil {
 		dialog.ShowError(fmt.Errorf("Failed get balance"), w)
 		totalBalance = "0"

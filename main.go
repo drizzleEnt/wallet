@@ -1,9 +1,19 @@
 package main
 
-import "github.com/drizzleent/wallet/app"
+import (
+	"context"
+	"os"
+
+	"github.com/drizzleent/wallet/app"
+)
 
 func main() {
-	a := app.NewApp()
+	ctx := context.Background()
+
+	a, err := app.NewApp(ctx)
+	if err != nil {
+		os.Exit(1)
+	}
 
 	a.Run()
 }

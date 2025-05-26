@@ -1,44 +1,57 @@
 package app
 
 import (
-	"github.com/drizzleent/wallet/blockchain"
-	"github.com/drizzleent/wallet/service"
-	"github.com/drizzleent/wallet/ui"
+	"context"
+
+	"github.com/drizzleent/wallet/config"
 )
 
 type App struct {
-	bc      blockchain.Blockchain
-	service service.Service
-	ui      *ui.UI
+	serviceProvider *serviceProvider
 }
 
-func NewApp() *App {
+func NewApp(ctx context.Context) (*App, error) {
 	a := App{}
-	return &a
+
+	err := a.initDeps(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &a, nil
 }
 
 func (a *App) Run() error {
-	a.UI().RunApp()
+	a.serviceProvider.UI().RunApp()
 	return nil
 }
 
-func (a *App) UI() *ui.UI {
-	if a.ui == nil {
-		a.ui = ui.NewUI(a.Blockchain(), a.Service())
+func (a *App) initDeps(ctx context.Context) error {
+	inits := []func(context.Context) error{
+		a.initConfig,
+		a.initServiceProvider,
 	}
-	return a.ui
+
+	for _, f := range inits {
+		err := f(ctx)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
-func (a *App) Service() service.Service {
-	if a.service == nil {
-		a.service = service.NewService()
+func (a *App) initConfig(_ context.Context) error {
+	err := config.Load(".env")
+	if err != nil {
+		return err
 	}
-	return a.service
+
+	return nil
 }
 
-func (a *App) Blockchain() blockchain.Blockchain {
-	if a.bc == nil {
-		a.bc = blockchain.NewBlockchain()
-	}
-	return a.bc
+func (a *App) initServiceProvider(_ context.Context) error {
+	a.serviceProvider = newServiceProvider()
+	return nil
 }

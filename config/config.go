@@ -1,28 +1,19 @@
 package config
 
 import (
-	"log"
-	"os"
+	"fmt"
 
 	"github.com/joho/godotenv"
 )
 
-const (
-	EtherscanApi = `api.etherscan.io`
-)
-
-var (
-	API string
-)
-
-func init() {
-	err := godotenv.Load()
+func Load(path string) error {
+	err := godotenv.Load(path)
 	if err != nil {
-		log.Fatal("Error loading .env file:", err)
+		return fmt.Errorf("Error loading .env file:", err)
 	}
 
-	API = os.Getenv("API")
-	if API == "" {
-		log.Fatal("Error loading API KEY:", err)
-	}
+	return nil
+}
+
+type EvmConfig interface {
 }
